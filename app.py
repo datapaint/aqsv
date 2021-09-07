@@ -1,9 +1,11 @@
 import os
 import dash
-import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
+import aqi
+import decimal
+from decimal import Decimal
 import flask
 from flask import Flask, render_template
 from dash.dependencies import Input, Output
@@ -84,6 +86,7 @@ def create_cards(sdf):
     for z, row in sdf.iterrows():
         output.append(html.Li([html.Div(sdf['Location'].iloc[z], className='card-loc'),
                               html.Div(sdf['AQI'].iloc[z], className='card-aqi'),
+                              html.Div('24hr exposure to ' + str(round(sdf['Cigarettes'].iloc[z], 2)) + ' Cigarettes', className='card-cigs'),
                               html.Div('Health Advisory', className='card-health-title'),
                               html.Div(sdf['Health'].iloc[z], className='card-health'),
                               html.Div('Caution: ' + sdf['Caution'].iloc[z], className='card-caution')],
@@ -91,8 +94,20 @@ def create_cards(sdf):
 
     return output
 
+def calc_cigs(gdf):
+
+    cigarette = 1/22 # Taken from http://berkeleyearth.org/air-pollution-and-cigarette-equivalence/
+    cigdf = gdf
+    cigdf['Cigarettes'] = ''
+
+    for d, row in gdf.iterrows():
+        cigdf['Cigarettes'].iloc[d] = decimal.Decimal(aqi.to_cc(aqi.POLLUTANT_PM25, gdf['AQI'].iloc[d], algo=aqi.ALGO_EPA)) * decimal.Decimal(cigarette)
+
+    return cigdf
+
 cities_df = get_sv_stations()
-scored_df = aqi_compare(cities_df)
+compare_df = aqi_compare(cities_df)
+scored_df = calc_cigs(compare_df)
 cards = create_cards(scored_df)
 app.layout = html.Div(children=[
     html.H1('Silicon Valley Air Quality', className='navigation'),

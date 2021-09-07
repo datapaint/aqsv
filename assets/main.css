@@ -25,7 +25,7 @@ body {
   padding: 10px 10px;
   text-align: center;
   width: 320px;
-  height: 320px;
+  height: 360px;
   display: inline-grid;
 }
 
@@ -35,6 +35,10 @@ body {
 
 .card-aqi {
   font-size: 42px;
+}
+
+.card-cigs {
+  font-weight: bold;
 }
 
 .card-health {

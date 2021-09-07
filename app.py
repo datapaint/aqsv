@@ -53,6 +53,7 @@ aqdf = pd.DataFrame({
 
 # Get the list of stations within the Silicon Valley geographic region
 def get_sv_stations():
+    
     lat1, lng1, lat2, lng2 = tuple(sv)
     c = client.list_stations_by_bbox(lat1, lng1, lat2, lng2, detailed=True)
 
